@@ -1,0 +1,19 @@
+TY  - JOUR
+T1  - Teaching Computational Modeling in the Data Science Era
+AU  - Giabbanelli, Philippe J.
+AU  - Mago, Vijay K.
+JO  - Procedia Computer Science
+VL  - 80
+SP  - 1968
+EP  - 1977
+PY  - 2016
+DA  - 2016/01/01/
+T2  - International Conference on Computational Science 2016, ICCS 2016, 6-8 June 2016, San Diego, California, USA
+SN  - 1877-0509
+DO  - https://doi.org/10.1016/j.procs.2016.05.517
+UR  - https://www.sciencedirect.com/science/article/pii/S1877050916310055
+KW  - Course content
+KW  - Data analytics
+KW  - Simulations
+AB  - Integrating data and models is an important and still challenging goal in science. Computational modeling has been taught for decades and regularly revised, for example in the 2000s where it became more inclusive of data mining. As we are now in the ‘data science’ era, we have the occasion (and often the incentive) to teach in an integrative manner computational modeling and data science. In this paper, we reviewed the content of courses and programs on computational modeling and/or data science. From this review and our teaching experience, we formed a set of design principles for an integrative course. We independently implemented these principles in two public research universities, in Canada and the US, for a course targeting graduate students and upper-division undergraduates. We discuss and contrast these implementations, and suggest ways in which the teaching of computational science can continue to be revised going forward.
+ER  - 
