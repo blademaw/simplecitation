@@ -1,5 +1,5 @@
 # simplecitation
-A simple script to quickly parse BibTex/RIS strings/files. Made to quickly grab metadata from scientific papers in a useful format.
+A simple script to quickly parse BibTex/RIS strings/files. Made to quickly grab metadata from scientific papers in a useful text format.
 
 ## Usage
 
@@ -9,11 +9,11 @@ $ ./getcitation.py FILENAME [bibtex|ris]
 
 Supply the filename and, if the file is a `.txt` file, the citation format of the `.txt` file contents. This returns a plaintext citation in the format:
 
-> `author` (`year`). `title`. `journal`, `doi`
+> `author(s)` (`year`). `(primary) title`. `journal`, `doi`
 
 Any missing data are substituted with the placeholder "No [datum\_label]," e.g. "No author."
 
-Note that this does not aim to conform to any popular standardized format (APA 7, Chicago, etc.) but instead act as a way to quickly, succinctly describe the contents of a paper (e.g., for reference management.)
+Note that this does not aim to conform to any popular standardized format (APA 7, Chicago, etc.) but instead act as a way to quickly, succinctly describe the contents of a paper (e.g., for personal reference management.)
 
 ### Examples
 
@@ -29,13 +29,19 @@ which outputs
 Philippe J. Giabbanelli and Vijay K. Mago (2016). Teaching Computational Modeling in the Data Science Era. Procedia Computer Science, https://doi.org/10.1016/j.procs.2016.05.517
 ```
 
-Alternatively, the same paper could be cited via a `.txt` file containing a RIS citation, via:
+
+
+A citation formatted as a `.txt` file containing an RIS citation would be parsed via:
 
 ```bash
-$ ./getcitation.py textris.txt ris
+$ ./getcitation.py biofilms.txt ris
 ```
 
-which returns the same string as the BibTex example.
+which, when parsed for the paper [Strategies for combating bacterial biofilm infections](https://www.nature.com/articles/ijos201465), would return the following string:
+
+```
+Hong Wu, Claus Moser, Heng-Zhuang Wang, Niels Høiby, Zhi-Jun Song (2015). Strategies for combating bacterial biofilm infections. International Journal of Oral Science, 10.1038/ijos.2014.65
+```
 
 
 
