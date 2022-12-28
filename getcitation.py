@@ -1,9 +1,12 @@
 #!/usr/bin/env python3.11
 import bibtexparser as bt
-import sys, re, rispy
+from enum import Enum
+import sys, re, os, rispy
+
+# defining enums
+FILETYPE = Enum('FileType', 'bibtex ris')
 
 def formatRis(c_dict):
-	# print(c_dict) # debugging
 	# format authors
 	if len(c_dict['authors']) == 1:
 		temp = c_dict['authors'][0].split(', ')
@@ -18,36 +21,61 @@ def formatRis(c_dict):
 
 	return c_dict
 
-def parseCitation(f_name, str_type=None):
-	# read file
-	with open(f_name) as file:
-		match str_type:
-			# if string passed (as .txt), read file accordingly
-			case 'bibtex':
-				c_dict = bt.loads(file.read()).entries[0]
-			case 'ris':
-				c_dict = formatRis(rispy.loads(file.read())[0])
-			
-			case None:
-				# load file as bibtex/ris
-				ext = f_name.split('.')[-1]
-				match ext:
-					case 'bib':
-						c_dict = bt.load(file).entries[0]
-					case 'ris':
-						c_dict = formatRis(rispy.load(file)[0])
-					case _:
-						raise ValueError(f"Extension {ext} not recognized.")
-			case _:
-				raise ValueError(f"String type {str_type} not recognized.")
-	
-	# print(c_dict) # debugging
+def getStringType(f_name, ext, s):
+	# print(s)
+	if any([symbol in s.lstrip(' \n').split('\n')[0] for symbol in ['@', '{']]):
+		# print(bt.loads(s).entries[0])
+		return FILETYPE.bibtex
+	elif s.lstrip(' \n')[:2] == 'TY':
+		return FILETYPE.ris
+	raise ValueError(f"Cannot read contents of file with extension '{ext}' — if .bib or .ris ensure file contents are correct.")
 
-	# output string
+
+def getFileData(f_name, str_type=None, f_type=None):
+	ext = f_name.split('.')[-1]
+	c_dict = None
+
+	with open(f_name) as file:
+		match ext:
+			case 'bib':
+				c_dict = bt.load(file).entries[0]
+				f_type = FILETYPE.bibtex
+			case 'ris':
+				c_dict = formatRis(rispy.load(file)[0])
+				f_type = FILETYPE.ris
+			case _:
+				# assume string; switch on filetype
+				try:
+					s = file.read()
+				except OSError:
+					raise ValueError(f"Cannot read file {f_name}.")
+				f_type = getStringType(f_name, ext, s)
+
+				match f_type:
+					# if string passed correctly, read file accordingly
+					case FILETYPE.bibtex:
+						c_dict = bt.loads(s).entries[0]
+					case FILETYPE.ris:
+						c_dict = formatRis(rispy.loads(s)[0])
+					case _:
+						raise ValueError(f"Type of contents in {f_name} not recognized.")
+				
+				# raise ValueError(f"Extension {ext} not recognized.")
+
+	return c_dict
+
+def parseCitation(f_name, str_type=None):
+	assert os.path.exists(f_name), f"Path {f_name} to file does not exist."
+
+	# obtain file data
+	c_dict = getFileData(f_name, str_type)
+	assert c_dict is not None, "Could not obtain data from file."
+
+	# format output string
 	retrieve = lambda k: c_dict.get(k,f'No {k}')
 	out_s = f"{retrieve('author')} ({retrieve('year')}). {retrieve('title')}. {retrieve('journal')}, {retrieve('doi')}"
 
-	# clean spacing, punctuation, random characters
+	# TODO: clean spacing, punctuation, random characters
 	return out_s
 
 if __name__ == '__main__':
