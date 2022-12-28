@@ -4,10 +4,14 @@ A simple script to quickly parse BibTex/RIS strings/files. Made to quickly grab 
 ## Usage
 
 ```bash
-$ ./getcitation.py FILENAME [bibtex|ris]
+$ ./getcitation.py [FILENAME [bibtex|ris]]
 ```
 
-Supply the filename to retrieve a plaintext citation. If the file is a `.txt` file, the citation format of the `.txt` file contents will be automatically detected, or may be explicitly supplied as an additional argument. Plaintext citations are in the format:
+Supply the filename to retrieve a plaintext citation for a `.bib` or `.ris`. If the file is a `.txt` file, the citation format of the `.txt` file contents will be automatically detected, or may be explicitly supplied as an additional argument.
+
+Alternatively, supplying no filename parses contents in the clipboard, automatically detecting the citation format.
+
+Outputted plaintext citations are in the format:
 
 > `author(s)` (`year`). `(primary) title`. `journal`, `doi`
 
@@ -48,4 +52,5 @@ Hong Wu, Claus Moser, Heng-Zhuang Wang, Niels Høiby, Zhi-Jun Song (2015). Strat
 ## Dependencies
 * Uses [BibtexParser](https://bibtexparser.readthedocs.io/en/master/) for parsing BibTex (`.bib`) files
 * Uses [rispy](https://pypi.org/project/rispy/#description) for parsing `.ris` files
+* Uses [pyperclip](https://pypi.org/project/pyperclip/) for clipboard access
 
