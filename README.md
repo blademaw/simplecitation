@@ -7,7 +7,7 @@ A simple script to quickly parse BibTex/RIS strings/files. Made to quickly grab 
 $ ./getcitation.py FILENAME [bibtex|ris]
 ```
 
-Supply the filename and, if the file is a `.txt` file, the citation format of the `.txt` file contents. This returns a plaintext citation in the format:
+Supply the filename to retrieve a plaintext citation. If the file is a `.txt` file, the citation format of the `.txt` file contents can be explicitly given as an additional argument. Plaintext citations are in the format:
 
 > `author(s)` (`year`). `(primary) title`. `journal`, `doi`
 
@@ -34,10 +34,10 @@ Philippe J. Giabbanelli and Vijay K. Mago (2016). Teaching Computational Modelin
 A citation formatted as a `.txt` file containing an RIS citation would be parsed via:
 
 ```bash
-$ ./getcitation.py biofilms.txt ris
+$ ./getcitation.py biofilms.txt [ris]
 ```
 
-which, when parsed for the paper [Strategies for combating bacterial biofilm infections](https://www.nature.com/articles/ijos201465), would return the following string:
+where the `[ris]` format argument is optional. When parsed for the paper [Strategies for combating bacterial biofilm infections](https://www.nature.com/articles/ijos201465), the output is the following:
 
 ```
 Hong Wu, Claus Moser, Heng-Zhuang Wang, Niels Høiby, Zhi-Jun Song (2015). Strategies for combating bacterial biofilm infections. International Journal of Oral Science, 10.1038/ijos.2014.65
