@@ -7,7 +7,7 @@ A simple script to quickly parse BibTex/RIS strings/files. Made to quickly grab 
 $ ./getcitation.py [FILENAME [bibtex|ris]]
 ```
 
-Supply the filename to retrieve a plaintext citation for a `.bib` or `.ris`. If the file is a `.txt` file, the citation format of the `.txt` file contents will be automatically detected, or may be explicitly supplied as an additional argument.
+Supply the filename to retrieve a plaintext citation for a `.bib` or `.ris` file. If a `.txt` file is supplied, the citation format of the contents will be automatically detected, or may be explicitly supplied as an additional argument.
 
 Alternatively, supplying no filename parses contents in the clipboard, automatically detecting the citation format.
 
@@ -17,7 +17,7 @@ Outputted plaintext citations are in the format:
 
 Any missing data are substituted with the placeholder "No [datum\_label]," e.g. "No author."
 
-Note that this does not aim to conform to any popular standardized format (APA 7, Chicago, etc.) but instead act as a way to quickly, succinctly describe the contents of a paper (e.g., for personal reference management.)
+Note that this does not aim to conform to any popular standardized format (APA 7, Chicago, etc.) but instead acts as a way to quickly, succinctly describe the contents of a paper (e.g., for personal reference management.)
 
 ### Examples
 
