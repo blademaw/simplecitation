@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 import bibtexparser as bt
 from enum import Enum
-import sys, re, os, rispy
+import sys, os, rispy
 
 # defining enums
 FILETYPE = Enum('FileType', 'bibtex ris')
@@ -22,9 +22,7 @@ def formatRis(c_dict):
 	return c_dict
 
 def getStringType(f_name, ext, s):
-	# print(s)
 	if any([symbol in s.lstrip(' \n').split('\n')[0] for symbol in ['@', '{']]):
-		# print(bt.loads(s).entries[0])
 		return FILETYPE.bibtex
 	elif s.lstrip(' \n')[:2] == 'TY':
 		return FILETYPE.ris
@@ -59,7 +57,7 @@ def getFileData(f_name, str_type=None, f_type=None):
 						c_dict = formatRis(rispy.loads(s)[0])
 					case _:
 						raise ValueError(f"Type of contents in {f_name} not recognized.")
-				
+
 				# raise ValueError(f"Extension {ext} not recognized.")
 
 	return c_dict
