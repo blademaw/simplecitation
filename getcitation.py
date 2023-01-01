@@ -13,6 +13,12 @@ BIB_PARSER.customization = lambda r: bc.author(r)
 FILETYPE = Enum('FileType', 'bibtex ris')
 
 def formatAuthors(c_dict, field='author'):
+	"""Formats a list of author names into a single string.
+	
+	Args:
+	    c_dict (Dict): Citation dictionary with 'author' field
+	    field (str, optional): Field to draw from ('author' initially)
+	"""
 	if len(c_dict[field]) == 1:
 		temp = c_dict[field][0].split(', ')
 		c_dict['author'] = f"{temp[1]} {temp[0]}"
@@ -22,6 +28,14 @@ def formatAuthors(c_dict, field='author'):
 
 
 def formatRis(c_dict):
+	"""Formats a .ris text read-in.
+	
+	Args:
+	    c_dict (Dict): Citation dictionary
+	
+	Returns:
+	    Dict: Updated citation dictionary
+	"""
 	# retrieval function
 	retrieve = lambda k: c_dict.get(k,f"No {k.split('_')[0]}")
 
@@ -36,6 +50,19 @@ def formatRis(c_dict):
 
 
 def getStringType(f_name, ext, s):
+	"""Detects whether a string is in .bib or .ris format.
+	
+	Args:
+	    f_name (str): File name citation is read from
+	    ext (str): Extension of file
+	    s (str): String of file/citation
+	
+	Returns:
+	    Enum: bibtex or ris, depending on type detected
+	
+	Raises:
+	    ValueError: if citation cannot be detected with naive pattern matching
+	"""
 	if any([symbol in s.lstrip(' \n').split('\n')[0] for symbol in ['@', '{']]):
 		return FILETYPE.bibtex
 	elif s.lstrip(' \n')[:2] == 'TY':
@@ -47,6 +74,19 @@ def getStringType(f_name, ext, s):
 
 
 def loadStringData(f_name, f_type, s):
+	"""Load data into citation dictionary from file.
+	
+	Args:
+	    f_name (str): File name of citation
+	    f_type (Enum): Type of citation format
+	    s (str): String of contents of file/citation
+	
+	Returns:
+	    Dict: Citation dictionary
+	
+	Raises:
+	    ValueError: if Enum is not recognized (should never happen)
+	"""
 	c_dict = None 
 
 	match f_type:
@@ -62,41 +102,87 @@ def loadStringData(f_name, f_type, s):
 	return c_dict
 
 
-def getFileData(f_name, str_type=None, f_type=None, s=None):
+def getFileData(f_name, f_type, s):
+	"""Obtain citation dictionary from supplied file
+	
+	Args:
+	    f_name (str): File name
+	    f_type (Enum, optional): File type; default is None signifying clipboard
+	    s (str, optional): String of citation, default is None signifying file to be read
+	
+	Returns:
+	    dict: Citation dictionary
+	
+	Raises:
+	    ValueError: if cannot access/read file
+	"""
 	c_dict = None
 
 	if f_name is None:
-		f_type = getStringType(None, None, s)
+		# assume user has data in clipboard
+		f_type = getStringType(None, None, s) if f_type is None else f_type
 		c_dict = loadStringData(None, f_type, s)
 	else:
 		ext = f_name.split('.')[-1]
 
 		with open(f_name) as file:
-			match ext:
-				case 'bib':
+			# try to detect with supplied filetype (takes precedence)
+			match f_type:
+				case FILETYPE.ris:
+					c_dict = formatRis(rispy.load(file)[0])
+				case FILETYPE.bibtex:
 					c_dict = bt.load(file, parser=BIB_PARSER).entries[0]
 					formatAuthors(c_dict)
-					f_type = FILETYPE.bibtex
-				case 'ris':
-					c_dict = formatRis(rispy.load(file)[0])
-					f_type = FILETYPE.ris
 				case _:
-					# assume string; switch on filetype
-					try:
-						s = file.read() if s is None else s
-					except OSError:
-						raise ValueError(f"Cannot read file {f_name}.")
-					f_type = getStringType(f_name, ext, s)
-					c_dict = loadStringData(f_name, f_type, s)
+					# otherwise, detect file extension
+					match ext:
+						case 'bib':
+							c_dict = bt.load(file, parser=BIB_PARSER).entries[0]
+							formatAuthors(c_dict)
+							f_type = FILETYPE.bibtex
+						case 'ris':
+							c_dict = formatRis(rispy.load(file)[0])
+							f_type = FILETYPE.ris
+						case _:
+							# assume text file, read contents
+							try:
+								s = file.read() if s is None else s
+							except OSError:
+								raise ValueError(f"Cannot read file {f_name}.")
+							f_type = getStringType(f_name, ext, s)
+							c_dict = loadStringData(f_name, f_type, s)
 
 	return c_dict
 
 
 def parseCitation(f_name, str_type=None, s=None):
+	"""Parse a citation.
+	
+	Args:
+	    f_name (str): File name
+	    str_type (str, optional): Type of citation format to be parsed, default None signifies autodetect
+	    s (str, optional): String to parse; default is None, supplied implies clipboard
+	
+	Returns:
+	    str: Parsed citation
+	
+	Raises:
+	    ValueError: if filetype supplied is erroneous
+	"""
 	if f_name is not None: assert os.path.exists(f_name), f"Path {f_name} to file does not exist."
 
+	match str_type:
+		case None:
+			f_type = None
+		case "ris":
+			f_type = FILETYPE.ris
+		case "bibtex":
+			f_type = FILETYPE.bibtex
+		case _:
+			raise ValueError(f"Cannot parse filetype '{str_type}'.")
+
 	# obtain file data
-	c_dict = getFileData(f_name, str_type=str_type, s=s)
+	c_dict = getFileData(f_name, f_type, s)
 	assert c_dict is not None, "Could not obtain data from file."
 
 	# format output string
