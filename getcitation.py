@@ -1,22 +1,32 @@
 #!/usr/bin/env python3.11
 import bibtexparser as bt
+from bibtexparser.bparser import BibTexParser
+import bibtexparser.customization as bc
 from enum import Enum
 import sys, os, rispy
 
+# defining parser for bibtex
+BIB_PARSER = BibTexParser()
+BIB_PARSER.customization = lambda r: bc.author(r)
+
 # defining enums
 FILETYPE = Enum('FileType', 'bibtex ris')
+
+def formatAuthors(c_dict, field='author'):
+	if len(c_dict[field]) == 1:
+		temp = c_dict[field][0].split(', ')
+		c_dict['author'] = f"{temp[1]} {temp[0]}"
+	else:
+		filler = " and " if len(c_dict[field]) == 2 else ", "
+		c_dict['author'] = filler.join([f"{i[1]} {i[0]}" for i in list(map(lambda s: s.split(', '), c_dict[field]))])
+
 
 def formatRis(c_dict):
 	# retrieval function
 	retrieve = lambda k: c_dict.get(k,f"No {k.split('_')[0]}")
 
 	# format authors
-	if len(c_dict['authors']) == 1:
-		temp = c_dict['authors'][0].split(', ')
-		c_dict['author'] = f"{temp[1]} {temp[0]}"
-	else:
-		filler = " and " if len(c_dict['authors']) == 2 else ", "
-		c_dict['author'] = filler.join([f"{i[1]} {i[0]}" for i in list(map(lambda s: s.split(', '), c_dict['authors']))])
+	formatAuthors(c_dict, 'authors')
 
 	# semantic corrections
 	c_dict['title'] = c_dict.get('primary_title') if c_dict.get('primary_title') is not None else retrieve('title')
@@ -42,7 +52,8 @@ def loadStringData(f_name, f_type, s):
 	match f_type:
 		# if string passed correctly, read file accordingly
 		case FILETYPE.bibtex:
-			c_dict = bt.loads(s).entries[0]
+			c_dict = bt.loads(s, parser=BIB_PARSER).entries[0]
+			formatAuthors(c_dict)
 		case FILETYPE.ris:
 			c_dict = formatRis(rispy.loads(s)[0])
 		case _:
@@ -63,7 +74,8 @@ def getFileData(f_name, str_type=None, f_type=None, s=None):
 		with open(f_name) as file:
 			match ext:
 				case 'bib':
-					c_dict = bt.load(file).entries[0]
+					c_dict = bt.load(file, parser=BIB_PARSER).entries[0]
+					formatAuthors(c_dict)
 					f_type = FILETYPE.bibtex
 				case 'ris':
 					c_dict = formatRis(rispy.load(file)[0])
